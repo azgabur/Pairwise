@@ -73,7 +73,7 @@ def test_invalid_parameters(request, capfd, data, error):
 @pytest.mark.parametrize(
     ("option", "error"),
     [
-        ("--invalid", "Error: No such option: --invalid"),
+        ("--invalid", "Error: No such option '--invalid'."),
         ("--margin invalid", "Error: Invalid value for '-m' / '--margin': 'invalid' is not a valid float."),
     ],
 )
