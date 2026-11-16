@@ -2,9 +2,22 @@
 
 import json
 import os
+import sys
 import tempfile
+from pathlib import Path
 
 import pytest
+from click.testing import CliRunner
+
+# main.py uses imports like ``from pairwise import Pairwise``, so its package
+# directory must be importable when the command is invoked in-process.
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "main"))
+
+
+@pytest.fixture()
+def runner():
+    """Click test runner for invoking the CLI in-process"""
+    return CliRunner()
 
 
 @pytest.fixture()

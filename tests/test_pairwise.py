@@ -4,6 +4,8 @@ import os
 
 import pytest
 
+from main.main import main
+
 
 @pytest.fixture()
 def input_file(create_file):
@@ -12,17 +14,17 @@ def input_file(create_file):
     return create_file(data)
 
 
-def test_pairwise(capfd, input_file):
+def test_pairwise(runner, input_file):
     """Test correct configuration generation"""
-    os.system(f"pipenv run pairwise {input_file}")
-    capture = capfd.readouterr()
-    assert "1: ['a', 2, 'y']\n2: ['a', 1, 'x']\n3: ['b', 1, 'y']\n4: ['b', 2, 'x']\n" == capture.out
+    result = runner.invoke(main, [input_file])
+    assert result.exit_code == 0
+    assert "1: ['a', 2, 'y']\n2: ['a', 1, 'x']\n3: ['b', 1, 'y']\n4: ['b', 2, 'x']\n" == result.output
 
 
-def test_output_to_csv(capfd, input_file, request):
+def test_output_to_csv(runner, input_file, tmp_path):
     """Test output to csv file"""
-    request.addfinalizer(lambda: os.remove("out.csv"))
-    os.system(f"pipenv run pairwise --output out.csv {input_file}")
-    capture = capfd.readouterr()
-    assert "1: ['a', 2, 'y']\n2: ['a', 1, 'x']\n3: ['b', 1, 'y']\n4: ['b', 2, 'x']\n" == capture.out
-    assert os.path.isfile("out.csv")
+    csv_path = tmp_path / "out.csv"
+    result = runner.invoke(main, ["--output", str(csv_path), input_file])
+    assert result.exit_code == 0
+    assert "1: ['a', 2, 'y']\n2: ['a', 1, 'x']\n3: ['b', 1, 'y']\n4: ['b', 2, 'x']\n" == result.output
+    assert os.path.isfile(csv_path)

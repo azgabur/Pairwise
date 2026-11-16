@@ -1,32 +1,31 @@
 """Tests for pairwise weights"""
 
-import os
+import pytest
+
+from main.main import main
 
 
-def test_unfulfillable_weight(capfd, create_file):
+def test_unfulfillable_weight(runner, create_file):
     """Test warn message when weights cannot be fulfilled"""
     data = {"Parameters": {"P1": ["a", "b"], "P2": [1, 2], "P3": ["x", "y"]}, "Weights": {"a": 2, "x": 3}}
     filename = create_file(data)
-    os.system(f"pipenv run pairwise {filename}")
-    capture = capfd.readouterr()
-    assert "No more unique configuration meeting the requirements" in capture.err
+    with pytest.warns(UserWarning, match="No more unique configuration meeting the requirements"):
+        runner.invoke(main, [filename], catch_exceptions=False)
 
 
-def test_weight(capfd, create_file):
+def test_weight(runner, create_file):
     """Test pairwise weights"""
     data = {
         "Parameters": {"P1": ["a", "b", "c", "d"], "P2": ["e", "f", "g", "h"], "P3": ["x", "y"], "P4": [1, 2]},
         "Weights": {"a": 2, "e": 0},
     }
     filename = create_file(data)
-    os.system(f"pipenv run pairwise --count {filename}")
-    capture = capfd.readouterr()
-    assert "('a', 7)" in capture.out
-    assert "('b', 4)" in capture.out
-    assert "('c', 4)" in capture.out
-    assert "('d', 4)" in capture.out
-    assert "('e', 4)" in capture.out
+    result = runner.invoke(main, ["--count", filename])
+    assert "('a', 7)" in result.output
+    assert "('b', 4)" in result.output
+    assert "('c', 4)" in result.output
+    assert "('d', 4)" in result.output
+    assert "('e', 4)" in result.output
 
-    os.system(f"pipenv run pairwise --count --margin 0 {filename}")
-    capture = capfd.readouterr()
-    assert "('e', 4)" in capture.out
+    result = runner.invoke(main, ["--count", "--margin", "0", filename])
+    assert "('e', 4)" in result.output

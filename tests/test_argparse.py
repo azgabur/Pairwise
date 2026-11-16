@@ -1,8 +1,8 @@
 """Test for argument parsing of pairwise tools"""
 
-import os
-
 import pytest
+
+from main.main import main
 
 
 @pytest.fixture()
@@ -39,18 +39,17 @@ def not_file():
     return "not_file.json"
 
 
-def test_empty_arg(capfd):
+def test_empty_arg(runner):
     """Test error message from empty arguments"""
-    os.system("pipenv run pairwise")
-    capture = capfd.readouterr()
-    assert "Error: Missing argument 'PARAMETERS'" in capture.err
+    result = runner.invoke(main, [])
+    assert "Error: Missing argument 'PARAMETERS'" in result.stderr
 
 
-def test_valid_parameters(capfd, valid_parameters):
+def test_valid_parameters(runner, valid_parameters):
     """Test that no error message is present with valid arguments"""
-    os.system(f"PIPENV_VERBOSITY=-1 pipenv run pairwise {valid_parameters}")
-    capture = capfd.readouterr()
-    assert capture.err == ""
+    result = runner.invoke(main, [valid_parameters])
+    assert result.exit_code == 0
+    assert result.stderr == ""
 
 
 @pytest.mark.parametrize(
@@ -62,23 +61,24 @@ def test_valid_parameters(capfd, valid_parameters):
         ("not_file", "Error: Invalid value for 'PARAMETERS': 'not_file.json': No such file or directory"),
     ],
 )
-def test_invalid_parameters(request, capfd, data, error):
+def test_invalid_parameters(request, runner, data, error):
     """Test error message for different invalid parameters"""
     filename = request.getfixturevalue(data)
-    os.system(f"pipenv run pairwise {filename}")
-    capture = capfd.readouterr()
-    assert error in capture.err
+    result = runner.invoke(main, [filename])
+    # Click prints usage errors (e.g. a bad file argument) to stderr, while the
+    # tool's own validation raises exceptions that invoke() captures instead.
+    reported = result.stderr + (str(result.exception) if result.exception else "")
+    assert error in reported
 
 
 @pytest.mark.parametrize(
     ("option", "error"),
     [
-        ("--invalid", "Error: No such option '--invalid'."),
-        ("--margin invalid", "Error: Invalid value for '-m' / '--margin': 'invalid' is not a valid float."),
+        (["--invalid"], "Error: No such option '--invalid'."),
+        (["--margin", "invalid"], "Error: Invalid value for '-m' / '--margin': 'invalid' is not a valid float."),
     ],
 )
-def test_invalid_option(capfd, valid_parameters, option, error):
+def test_invalid_option(runner, valid_parameters, option, error):
     """Test error message for different invalid options"""
-    os.system(f"pipenv run pairwise {option} {valid_parameters}")
-    capture = capfd.readouterr()
-    assert error in capture.err
+    result = runner.invoke(main, option + [valid_parameters])
+    assert error in result.stderr
