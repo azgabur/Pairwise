@@ -1,4 +1,5 @@
 """Pairwise tool for generating configurations"""
+
 import warnings
 
 import click

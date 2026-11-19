@@ -1,4 +1,5 @@
 """Pairwise class"""
+
 import csv
 import itertools
 import math

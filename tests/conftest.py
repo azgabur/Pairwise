@@ -1,4 +1,5 @@
 """Conftest for pairwise tests"""
+
 import json
 import os
 import string

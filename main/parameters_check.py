@@ -1,4 +1,5 @@
 """Parameters check class for pairwise tool"""
+
 import json
 
 
