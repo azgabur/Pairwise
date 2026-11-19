@@ -51,4 +51,20 @@ Additionally, you can use some of the available options:
 * `--margin {float}` margin of weights, some wiggle room for weight representation in generated configurations (default: 0.05)
 * `--count` prints how many times was each parameter used during configuration generation
 
-e.g. `pipenv run pairwise --output configurations.csv --margin 0.04 --count parameters.json` 
+e.g. `pipenv run pairwise --output configurations.csv --margin 0.04 --count parameters.json`
+
+## Container image
+The tool is also available as a container image `quay.io/rhn_support_azgabur/pairwise:latest`,
+built from the `Containerfile` and published by GitHub Actions on every push to `master`.
+
+Mount the directory with the parameters file into the container and pass the path as the argument:
+```
+podman run --rm -v "$PWD":/data:Z quay.io/rhn_support_azgabur/pairwise /data/parameters.json
+```
+The container runs as non-root user `1001`. To write a CSV file into the mounted directory with rootless podman,
+map your user to that UID:
+```
+podman run --rm --userns=keep-id:uid=1001,gid=0 -v "$PWD":/data:Z \
+  quay.io/rhn_support_azgabur/pairwise --output /data/configurations.csv /data/parameters.json
+```
+To build the image locally run `podman build -t pairwise -f Containerfile .` 
