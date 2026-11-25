@@ -5,6 +5,7 @@ import csv
 import pytest
 
 from main.main import main
+from parameters_check import InsufficientKinds  # pylint: disable=wrong-import-order
 from tests.helpers import covered_pairs, expected_pairs, parse_configurations
 
 
@@ -44,16 +45,19 @@ def test_pairwise_covers_all_pairs(runner, create_file, parameters):
     assert not missing, f"uncovered pairs: {missing}"
 
 
-@pytest.mark.xfail(
-    raises=KeyError,
-    strict=True,
-    reason="Bug: with a single kind there are no pairs, and _next_quantity_param indexes an empty dict",
+@pytest.mark.parametrize(
+    "parameters",
+    [
+        {},  # no kinds
+        {"P1": ["a", "b"]},  # single kind
+    ],
 )
-def test_single_kind(runner, create_file):
-    """A single parameter kind should produce one configuration per value"""
-    filename = create_file({"Parameters": {"P1": ["a", "b"]}})
-    result = runner.invoke(main, [filename], catch_exceptions=False)
-    assert parse_configurations(result.output) == [["a"], ["b"]]
+def test_insufficient_kinds_rejected(runner, create_file, parameters):
+    """Fewer than two parameter kinds form no pairs and must be rejected by input validation"""
+    filename = create_file({"Parameters": parameters})
+    result = runner.invoke(main, [filename])
+    assert isinstance(result.exception, InsufficientKinds)
+    assert "At least two parameter kinds are required" in str(result.exception)
 
 
 def test_output_to_csv(runner, input_file, tmp_path):

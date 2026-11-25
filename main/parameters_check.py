@@ -15,6 +15,7 @@ class ParametersCheck:
     def check_parameters(self):
         """Checks if input paramateres are correct"""
         self.try_load()
+        self._check_kind_count()
         self._check_empty_kind()
         self._check_duplicate_parameter()
         self._check_nonexistent_weight()
@@ -29,6 +30,13 @@ class ParametersCheck:
 
         self.parameters = self.file["Parameters"]
         self.weights = self.file.get("Weights", {})
+
+    def _check_kind_count(self):
+        """Checks if there are at least two parameter kinds, otherwise no pairs can be formed"""
+        if len(self.parameters) < 2:
+            raise InsufficientKinds(
+                f"\nAt least two parameter kinds are required for pairwise testing, got {len(self.parameters)}."
+            )
 
     def _check_empty_kind(self):
         """Checks if any parameters list is empty"""
@@ -68,6 +76,10 @@ class ParametersCheck:
         for k, v in self.weights.items():
             if v < 0:
                 raise InvalidWeight(f"Weight for parameter '{k}' is negative.")
+
+
+class InsufficientKinds(Exception):
+    """Exception class for fewer than two parameter kinds"""
 
 
 class EmptyList(Exception):
