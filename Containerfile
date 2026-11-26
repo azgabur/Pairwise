@@ -1,4 +1,4 @@
-FROM quay.io/sclorg/python-312-minimal-c9s:latest
+FROM registry.access.redhat.com/ubi10/python-314-minimal:latest
 
 LABEL name="pairwise" \
       summary="Pairwise test configuration generator" \
