@@ -8,10 +8,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - name: Install qemu for cross-architecture builds
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y qemu-user-static
+      - name: Set up qemu for cross-architecture builds
+        uses: docker/setup-qemu-action@v4
+        with:
+          platforms: arm64,ppc64le,s390x
       - name: Build multi-architecture image
         id: build
         uses: redhat-actions/buildah-build@v3
