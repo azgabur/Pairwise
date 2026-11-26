@@ -8,28 +8,28 @@ from main.main import main
 @pytest.fixture()
 def valid_parameters(create_file):
     """Creates file with valid paramaters data"""
-    data = {"Parameters": {"P1": ["a", "b"], "P2": [1, 2], "P3": ["x", "y"]}}
+    data = {"Parameters": {"P1": ["a", "b"], "P2": ["1", "2"], "P3": ["x", "y"]}}
     return create_file(data)
 
 
 @pytest.fixture()
 def empty_list(create_file):
     """Creates file with empty parameters list"""
-    data = {"Parameters": {"P1": [], "P2": [1, 2], "P3": ["x", "y"]}}
+    data = {"Parameters": {"P1": [], "P2": ["1", "2"], "P3": ["x", "y"]}}
     return create_file(data)
 
 
 @pytest.fixture()
 def invalid_weight(create_file):
     """Creates file with valid invalid parameter weight"""
-    data = {"Parameters": {"P1": ["a", "b"], "P2": [1, 2], "P3": ["x", "y"]}, "Weights": {"invalid": 1}}
+    data = {"Parameters": {"P1": ["a", "b"], "P2": ["1", "2"], "P3": ["x", "y"]}, "Weights": {"invalid": 1}}
     return create_file(data)
 
 
 @pytest.fixture()
 def negative_weight(create_file):
     """Creates file with valid negative parameter weight"""
-    data = {"Parameters": {"P1": ["a", "b"], "P2": [1, 2], "P3": ["x", "y"]}, "Weights": {"a": -1}}
+    data = {"Parameters": {"P1": ["a", "b"], "P2": ["1", "2"], "P3": ["x", "y"]}, "Weights": {"a": -1}}
     return create_file(data)
 
 
