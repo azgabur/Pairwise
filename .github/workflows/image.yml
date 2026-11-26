@@ -7,17 +7,22 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Build image
+      - uses: actions/checkout@v7
+      - name: Install qemu for cross-architecture builds
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-user-static
+      - name: Build multi-architecture image
         id: build
-        uses: redhat-actions/buildah-build@v2
+        uses: redhat-actions/buildah-build@v3
         with:
           image: pairwise
           tags: latest
+          archs: amd64, arm64, ppc64le, s390x
           containerfiles: ./Containerfile
       - name: Push image to quay.io
         if: github.event_name != 'pull_request'
-        uses: redhat-actions/push-to-registry@v2
+        uses: redhat-actions/push-to-registry@v3
         with:
           image: ${{ steps.build.outputs.image }}
           tags: ${{ steps.build.outputs.tags }}
