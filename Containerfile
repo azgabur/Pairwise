@@ -4,7 +4,7 @@ LABEL name="pairwise" \
       summary="Pairwise test configuration generator" \
       org.opencontainers.image.source="https://github.com/azgabur/Pairwise"
 
-RUN pip install --no-cache-dir click
+RUN pip install --no-cache-dir click pyyaml
 
 COPY main/ /opt/app-root/src/main/
 

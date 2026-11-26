@@ -7,6 +7,7 @@ import tempfile
 from pathlib import Path
 
 import pytest
+import yaml
 from click.testing import CliRunner
 
 # main.py uses imports like ``from pairwise import Pairwise``, so its package
@@ -24,11 +25,21 @@ def runner():
 def create_file(request):
     """Create input file from given parameters"""
 
-    def _create_file(data):
-        fd, filename = tempfile.mkstemp(suffix=".json")
+    def _create_file(data, file_format="json", suffix=None):
+        """
+        :param data: Content of the file, serialized as JSON or YAML; a string is written verbatim
+        :param file_format: "json" or "yaml"
+        :param suffix: File name suffix, by default derived from the format
+        """
+        fd, filename = tempfile.mkstemp(suffix=f".{file_format}" if suffix is None else suffix)
         request.addfinalizer(lambda: os.remove(filename))
         with os.fdopen(fd, "w", encoding="utf-8") as outfile:
-            json.dump(data, outfile)
+            if isinstance(data, str):
+                outfile.write(data)
+            elif file_format == "yaml":
+                yaml.safe_dump(data, outfile)
+            else:
+                json.dump(data, outfile)
         return filename
 
     return _create_file

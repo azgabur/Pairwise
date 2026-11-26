@@ -1,6 +1,5 @@
 """Pairwise class"""
 
-import csv
 import itertools
 import math
 from pprint import pprint
@@ -64,26 +63,13 @@ class Pairwise:
                 ratio_done = self._check_ratio()
         return True
 
-    def to_csv(self, output):
+    def print_quantity(self, stream=None):
         """
-        :param output: Output file
-        Generate CSV file containing generated configurations
+        Print quantity of each parameter in generated configurations
+        :param stream: Text stream to print to, stdout by default
         """
-        writer = csv.writer(output)
-        writer.writerow(self.configurations[0].keys())
-        for conf in self.configurations:
-            writer.writerow(conf.values())
-        output.close()
-
-    def print_quantity(self):
-        """Print quantity of each parameter in generated configurations"""
         quantity = self._count_quantity()
-        pprint(sorted(quantity.items(), key=lambda x: x[1]))
-
-    def print_configurations(self):
-        """Print generated configurations"""
-        for i, conf in enumerate(self.configurations):
-            print(f"{i + 1}: {list(conf.values())}")
+        pprint(sorted(quantity.items(), key=lambda x: x[1]), stream=stream)
 
     def _count_quantity(self):
         """
@@ -250,7 +236,6 @@ class Pairwise:
                 if parameter in self.only_pairwise and self._check_finished_param(parameter):
                     continue
                 return parameter
-        print("1")
         return None
 
     def _check_finished_kind(self):

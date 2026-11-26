@@ -1,21 +1,16 @@
 """Helpers shared by the pairwise tests"""
 
-import ast
 import itertools
+import json
 
 
 def parse_configurations(output):
-    """Parse the CLI stdout back into a list of configurations.
+    """Parse the CLI stdout produced with ``--output json`` back into a list of configurations.
 
-    Each printed line has the form ``N: [value, value, ...]``; the part after
-    ``": "`` is a Python list literal. ``ast.literal_eval`` (not ``eval``) is
-    used so the mixed ``str``/``int`` values round-trip to their real types.
+    Each configuration is returned as the list of its values. JSON (unlike CSV) is used
+    so the values are not subject to CSV quoting and splitting rules.
     """
-    configurations = []
-    for line in output.splitlines():
-        if ": " in line:
-            configurations.append(ast.literal_eval(line.split(": ", 1)[1]))
-    return configurations
+    return [list(conf.values()) for conf in json.loads(output)["Configurations"]]
 
 
 def expected_pairs(parameters):

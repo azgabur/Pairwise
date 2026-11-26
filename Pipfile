@@ -3,10 +3,12 @@ mypy = "*"
 flake8= "*"
 pylint = "*"
 black="*"
+types-pyyaml = "*"
 
 [packages]
 click = "*"
 pytest = "*"
+pyyaml = "*"
 
 [scripts]
 pairwise = "python main/main.py"
